@@ -132,11 +132,11 @@ class Command(EmailNotificationCommand):
                 return self.current_directory
 
         def set_directory(script_module):
-            if options['chdir']:
-                directory = get_directory_from_chdir()
-            elif options['dir_policy']:
-                directory = get_directory_basing_on_policy(script_module)
-            elif getattr(settings, 'RUNSCRIPT_CHDIR', None):
+            if (
+                options['chdir']
+                or not options['dir_policy']
+                and getattr(settings, 'RUNSCRIPT_CHDIR', None)
+            ):
                 directory = get_directory_from_chdir()
             else:
                 directory = get_directory_basing_on_policy(script_module)
@@ -156,9 +156,8 @@ class Command(EmailNotificationCommand):
                 if email_notifications:
                     self.send_email_notification(
                         notification_id=mod.__name__, include_traceback=True)
-                if show_traceback:
-                    if not isinstance(e, CommandError):
-                        raise
+                if show_traceback and not isinstance(e, CommandError):
+                    raise
 
         def my_import(parent_package, module_name):
             full_module_path = "%s.%s" % (parent_package, module_name)

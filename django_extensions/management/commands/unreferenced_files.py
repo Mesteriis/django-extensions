@@ -34,10 +34,10 @@ class Command(BaseCommand):
 
         # Get a list of all files referenced in the database
         referenced = set()
-        for model in model_dict:
+        for model, value in model_dict.items():
             all = model.objects.all().iterator()
             for object in all:
-                for field in model_dict[model]:
+                for field in value:
                     target_file = getattr(object, field.name)
                     if target_file:
                         referenced.add(os.path.abspath(target_file.path))

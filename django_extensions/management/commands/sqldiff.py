@@ -272,9 +272,7 @@ class SQLDiff:
         fieldnames = self.format_field_names(fieldnames)
         result = []
         for row in cursor.fetchall():
-            rowset = []
-            for field in zip(fieldnames, row):
-                rowset.append(field)
+            rowset = [field for field in zip(fieldnames, row)]
             result.append(dict(rowset))
         return result
 
@@ -382,12 +380,10 @@ class SQLDiff:
         return field_type
 
     def expand_together(self, together, meta):
-        new_together = []
-        for fields in normalize_together(together):
-            new_together.append(
-                tuple(meta.get_field(field).attname for field in fields)
-            )
-        return new_together
+        return [
+            tuple(meta.get_field(field).attname for field in fields)
+            for fields in normalize_together(together)
+        ]
 
     def find_unique_missing_in_db(self, meta, table_indexes, table_constraints, table_name, skip_list=None):
         schema_editor = connection.SchemaEditorClass(connection)
@@ -489,15 +485,13 @@ class SQLDiff:
 
             columns = constraint['columns']
             field = fields.get(columns[0])
-            if (constraint['unique'] and constraint['index']) or field is None:
+            if constraint['unique'] or field is None:
                 # unique indexes do not exist in django ? only unique constraints
                 pass
             elif len(columns) == 1:
                 if constraint['primary_key'] and field.primary_key:
                     continue
                 if constraint['foreign_key'] and isinstance(field, models.ForeignKey) and field.db_constraint:
-                    continue
-                if constraint['unique'] and field.unique:
                     continue
                 if constraint['index'] and constraint['type'] == 'idx' and constraint.get('orders') and field.unique:
                     # django automatically creates a _like varchar_pattern_ops/text_pattern_ops index see https://code.djangoproject.com/ticket/12234
@@ -553,7 +547,7 @@ class SQLDiff:
             if func:
                 model_type, db_type = func(field, description, model_type, db_type)
 
-            if not self.strip_parameters(db_type) == self.strip_parameters(model_type):
+            if self.strip_parameters(db_type) != self.strip_parameters(model_type):
                 self.add_difference('field-type-differ', table_name, field.name, model_type, db_type)
 
     def find_field_parameter_differ(self, meta, table_description, table_name, func=None):
@@ -566,7 +560,7 @@ class SQLDiff:
             model_type = self.get_field_model_type(field)
             db_type = self.get_field_db_type(description, field, table_name)
 
-            if not self.strip_parameters(model_type) == self.strip_parameters(db_type):
+            if self.strip_parameters(model_type) != self.strip_parameters(db_type):
                 continue
 
             # use callback function if defined
@@ -580,7 +574,7 @@ class SQLDiff:
             else:
                 db_check = None
 
-            if not model_type == db_type or not model_check == db_check:
+            if model_type != db_type or model_check != db_check:
                 self.add_difference('field-parameter-differ', table_name, field.name, model_type, db_type)
 
     def find_field_notnull_differ(self, meta, table_description, table_name):
@@ -678,7 +672,9 @@ class SQLDiff:
             self.find_field_parameter_differ(meta, table_description, table_name)
             # 9) find: 'field-notnull'
             self.find_field_notnull_differ(meta, table_description, table_name)
-        self.has_differences = max([len(diffs) for _app_label, _model_name, diffs in self.differences])
+        self.has_differences = max(
+            len(diffs) for _app_label, _model_name, diffs in self.differences
+        )
 
     def print_diff(self, style=no_style()):
         """ Print differences to stdout """
@@ -707,10 +703,13 @@ class SQLDiff:
                 self.stdout.write("%s %s" % (style.NOTICE("|-+ Differences for model:"), style.SQL_TABLE(model_name)))
             for diff in diffs:
                 diff_type, diff_args = diff
-                text = self.DIFF_TEXTS[diff_type] % dict(
-                    (str(i), style.SQL_TABLE(', '.join(e) if isinstance(e, (list, tuple)) else e))
+                text = self.DIFF_TEXTS[diff_type] % {
+                    str(i): style.SQL_TABLE(
+                        ', '.join(e) if isinstance(e, (list, tuple)) else e
+                    )
                     for i, e in enumerate(diff_args)
-                )
+                }
+
                 text = "'".join(i % 2 == 0 and style.ERROR(e) or e for i, e in enumerate(text.split("'")))
                 if not self.dense:
                     self.stdout.write("%s %s" % (style.NOTICE("|--+"), text))
@@ -726,12 +725,12 @@ class SQLDiff:
             self.stdout.write("")
 
         cur_app_label = None
-        qn = connection.ops.quote_name
         if not self.has_differences:
             if not self.dense:
                 self.stdout.write(style.SQL_KEYWORD("-- No differences"))
         else:
             self.stdout.write(style.SQL_KEYWORD("BEGIN;"))
+            qn = connection.ops.quote_name
             for app_label, model_name, diffs in self.differences:
                 if not diffs:
                     continue
@@ -827,9 +826,11 @@ class MySQLDiff(SQLDiff):
 
             # They like to call bools various integer types and introspection makes that a integer
             # just convert them all to bools
-            if self.strip_parameters(field_type) == 'bool':
-                if db_type == 'integer':
-                    db_type = 'bool'
+            if (
+                self.strip_parameters(field_type) == 'bool'
+                and db_type == 'integer'
+            ):
+                db_type = 'bool'
 
             if (table_name, field.column) in self.auto_increment and 'AUTO_INCREMENT' not in db_type:
                 db_type += ' AUTO_INCREMENT'
@@ -921,9 +922,9 @@ class SqliteSQLDiff(SQLDiff):
     can_detect_unsigned_differ = False
 
     def load_null(self):
+        # sqlite does not support tablespaces
+        tablespace = "public"
         for table_name in self.db_tables:
-            # sqlite does not support tablespaces
-            tablespace = "public"
             # index, column_name, column_type, nullable, default_value
             # see: http://www.sqlite.org/pragma.html#pragma_table_info
             for table_info in self.sql_to_dict("PRAGMA table_info('%s');" % table_name, []):
@@ -1025,8 +1026,8 @@ class PostgresqlSQLDiff(SQLDiff):
 
     def load_constraints(self):
         for dct in self.sql_to_dict(self.SQL_LOAD_CONSTRAINTS, []):
-            key = (dct['nspname'], dct['relname'], dct['attname'])
             if 'CHECK' in dct['pg_get_constraintdef']:
+                key = (dct['nspname'], dct['relname'], dct['attname'])
                 self.check_constraints[key] = dct
 
     def get_data_type_arrayfield(self, base_field):

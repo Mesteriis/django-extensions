@@ -152,7 +152,7 @@ def dia2django(archivo):
                                     tc = "models.CharField(max_length=" + varch.group(1) + ")"
                                     if len(val) > 0:
                                         tc = tc.replace(")", ", " + val + " )")
-                                if not (nc == "id" and tc == "AutoField()"):
+                                if nc != "id" or tc != "AutoField()":
                                     clases[actclas][2] += "    %s = %s\n" % (nc, tc)
         elif i.getAttribute("type") == "UML - Generalization":
             mycons = ['A', 'A']

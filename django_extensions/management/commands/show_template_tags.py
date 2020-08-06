@@ -76,11 +76,7 @@ class Command(BaseCommand):
 
     @signalcommand
     def handle(self, *args, **options):
-        if options['no_color']:
-            style = no_style()
-        else:
-            style = color_style()
-
+        style = no_style() if options['no_color'] else color_style()
         for app_config in apps.get_app_configs():
             app = app_config.name
             try:

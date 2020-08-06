@@ -279,12 +279,7 @@ class AdminModel(UnicodeMixin):
             k, vs = k.split('=', 1)
             vs = vs.split(',')
             if k in field_names:
-                incomplete = False
-                for v in vs:
-                    if v not in field_names:
-                        incomplete = True
-                        break
-
+                incomplete = any(v not in field_names for v in vs)
                 if not incomplete:
                     self.prepopulated_fields[k] = vs
 
