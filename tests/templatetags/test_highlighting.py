@@ -10,13 +10,13 @@ class HighlightTagExceptionTests(TestCase):
         self.ctx = Context()
 
     def test_should_raise_TemplateSyntaxError(self):
-        content = """{% load highlighting %}
+        with self.assertRaisesRegex(
+                    TemplateSyntaxError,
+                    "'highlight' statement requires an argument"):
+            content = """{% load highlighting %}
 {% highlight %}
 {% endhighlight %}
 """
-        with self.assertRaisesRegex(
-                TemplateSyntaxError,
-                "'highlight' statement requires an argument"):
             Template(content).render(self.ctx)
 
 

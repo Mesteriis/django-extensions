@@ -57,9 +57,12 @@ def copy_template(template_name, copy_to, **options):
     # walk the template structure and copies it
     for d, subdirs, files in os.walk(template_dir):
         relative_dir = d[len(template_dir) + 1:]
-        if relative_dir and not os.path.exists(os.path.join(copy_to, relative_dir)):
-            if not dry_run:
-                os.mkdir(os.path.join(copy_to, relative_dir))
+        if (
+            relative_dir
+            and not os.path.exists(os.path.join(copy_to, relative_dir))
+            and not dry_run
+        ):
+            os.mkdir(os.path.join(copy_to, relative_dir))
         for i, subdir in enumerate(subdirs):
             if subdir.startswith('.'):
                 del subdirs[i]

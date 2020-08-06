@@ -225,7 +225,7 @@ class UUIDField(StringField):
         self.version = version
         if version == 1:
             self.node, self.clock_seq = node, clock_seq
-        elif version == 3 or version == 5:
+        elif version in [3, 5]:
             self.namespace, self.name = namespace, name
         StringField.__init__(self, verbose_name, name, **kwargs)
 

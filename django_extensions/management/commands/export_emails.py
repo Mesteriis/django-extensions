@@ -71,7 +71,7 @@ class Command(BaseCommand):
         if len(args) > 1:
             raise CommandError("extra arguments supplied")
         group = options['group']
-        if group and not Group.objects.filter(name=group).count() == 1:
+        if group and Group.objects.filter(name=group).count() != 1:
             names = "', '".join(g['name'] for g in Group.objects.values('name'))
             if names:
                 names = "'" + names + "'."

@@ -156,17 +156,17 @@ class Command(BaseCommand):
                 fp.write("".join(squashed_migration_lines))
 
     def confirm(self):
-        if self.interactive:
-            answer = None
-            while not answer or answer not in "yn":
-                answer = input("Do you wish to proceed? [yN] ")
-                if not answer:
-                    answer = "n"
-                    break
-                else:
-                    answer = answer[0].lower()
-            return answer == "y"
-        return True
+        if not self.interactive:
+            return True
+        answer = None
+        while not answer or answer not in "yn":
+            answer = input("Do you wish to proceed? [yN] ")
+            if not answer:
+                answer = "n"
+                break
+            else:
+                answer = answer[0].lower()
+        return answer == "y"
 
     def find_migration(self, loader, app_label, name):
         try:

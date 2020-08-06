@@ -75,12 +75,10 @@ def orm_item_locator(orm_obj):
             elif not isinstance(v, (str, int, float)):
                 clean_dict[key] = str("%s" % v)
 
-    output = """ importer.locate_object(%s, "%s", %s, "%s", %s, %s ) """ % (
+    return """ importer.locate_object(%s, "%s", %s, "%s", %s, %s ) """ % (
         original_class, original_pk_name,
         the_class, pk_name, pk_value, clean_dict
     )
-
-    return output
 
 
 class Command(BaseCommand):
@@ -316,7 +314,7 @@ class InstanceCode(Code):
         using = router.db_for_write(cls, instance=self.instance)
         collector = Collector(using=using)
         collector.collect([self.instance], collect_related=False)
-        sub_objects = sum([list(i) for i in collector.data.values()], [])
+        sub_objects = sum((list(i) for i in collector.data.values()), [])
         sub_objects_parents = [so._meta.parents for so in sub_objects]
         if [self.model in p for p in sub_objects_parents].count(True) == 1:
             # since this instance isn't explicitly created, it's variable name
@@ -635,14 +633,14 @@ def flatten_blocks(lines, num_indents=-1):
     Take a list (block) or string (statement) and flattens it into a string
     with indentation.
     """
-    # The standard indent is four spaces
-    INDENTATION = " " * 4
-
     if not lines:
         return ""
 
     # If this is a string, add the indentation and finish here
     if isinstance(lines, str):
+        # The standard indent is four spaces
+        INDENTATION = " " * 4
+
         return INDENTATION * num_indents + lines
 
     # If this is not a string, join the lines and recurse

@@ -93,7 +93,7 @@ def import_job(app_name, name, when=None):
         job = job_mod.Job
     except AttributeError:
         raise JobError("Job module %s does not contain class instance named 'Job'" % jobmodule)
-    if when and not (job.when == when or job.when is None):
+    if when and job.when != when and job.when is not None:
         raise JobError("Job %s is not a %s job." % (jobmodule, when))
     return job
 

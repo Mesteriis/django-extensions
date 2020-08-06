@@ -58,7 +58,9 @@ class Command(BaseCommand):
 
         if options['fail']:
             for setting_name in setting_names:
-                if not any(fnmatch.fnmatchcase(key, setting_name) for key in settings_dct.keys()):
+                if not any(
+                    fnmatch.fnmatchcase(key, setting_name) for key in settings_dct
+                ):
                     raise CommandError('%s not found in settings.' % setting_name)
 
         output_format = options['format']

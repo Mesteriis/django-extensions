@@ -95,9 +95,8 @@ class ModelGraph:
         for graph in self.graphs:
             for model in graph['models']:
                 for relation in model['relations']:
-                    if relation is not None:
-                        if relation['target'] in nodes:
-                            relation['needs_node'] = False
+                    if relation is not None and relation['target'] in nodes:
+                        relation['needs_node'] = False
 
     def get_graph_data(self, as_json=False):
         now = datetime.datetime.now()
@@ -261,8 +260,7 @@ class ModelGraph:
         }
 
     def get_models(self, app):
-        appmodels = list(app.get_models())
-        return appmodels
+        return list(app.get_models())
 
     def get_relation_context(self, target_model, field, label, extras):
         return {
@@ -406,9 +404,12 @@ class ModelGraph:
 
     def skip_field(self, field):
         if self.exclude_columns:
-            if self.verbose_names and field.verbose_name:
-                if field.verbose_name in self.exclude_columns:
-                    return True
+            if (
+                self.verbose_names
+                and field.verbose_name
+                and field.verbose_name in self.exclude_columns
+            ):
+                return True
             if field.name in self.exclude_columns:
                 return True
         return False
@@ -424,9 +425,7 @@ def generate_dot(graph_data, template='django_extensions/graph_models/digraph.do
                         "Please, check the settings.")
 
     c = Context(graph_data).flatten()
-    dot = template.render(c)
-
-    return dot
+    return template.render(c)
 
 
 def generate_graph_data(*args, **kwargs):

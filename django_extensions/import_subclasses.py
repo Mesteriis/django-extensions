@@ -25,10 +25,10 @@ class SubclassesFinder:
             self.base_classes.append(element)
 
     def _should_be_imported(self, candidate_to_import):  # type: (Tuple[str, type]) -> bool
-        for base_class in self.base_classes:
-            if issubclass(candidate_to_import[1], base_class):
-                return True
-        return False
+        return any(
+            issubclass(candidate_to_import[1], base_class)
+            for base_class in self.base_classes
+        )
 
     def collect_subclasses(self):  # type: () -> Dict[str, List[Tuple[str, str]]]
         """

@@ -57,8 +57,7 @@ def pygments_required(func):
         if not HAS_PYGMENTS:  # pragma: no cover
             raise ImportError(
                 "Please install 'pygments' library to use syntax_color.")
-        rv = func(*args, **kwargs)
-        return rv
+        return func(*args, **kwargs)
     return wrapper
 
 

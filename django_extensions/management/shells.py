@@ -192,7 +192,7 @@ def import_objects(options, style):
     imported_objects = {}
     load_models = {}
 
-    def get_dict_from_names_to_possible_models():  # type: () -> Dict[str, List[str]]
+    def get_dict_from_names_to_possible_models():    # type: () -> Dict[str, List[str]]
         """
         Collect dictionary from names to possible models. Model is represented as his full path.
         Name of model can be alias if SHELL_PLUS_MODEL_ALIASES or SHELL_PLUS_APP_PREFIXES is specified for this model.
@@ -213,11 +213,7 @@ def import_objects(options, style):
                 alias = app_aliases.get(model_name)
 
                 if not alias:
-                    if prefix:
-                        alias = "%s_%s" % (prefix, model_name)
-                    else:
-                        alias = model_name
-
+                    alias = "%s_%s" % (prefix, model_name) if prefix else model_name
                 models_to_import.setdefault(alias, [])
                 models_to_import[alias].append("%s.%s" % (app_mod, model_name))
         return models_to_import

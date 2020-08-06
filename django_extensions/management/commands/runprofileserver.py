@@ -59,16 +59,8 @@ class KCacheGrind:
             out_file.write('%d %d\n' % (code.co_firstlineno, inlinetime))
 
         # recursive calls are counted in entry.calls
-        if entry.calls:
-            calls = entry.calls
-        else:
-            calls = []
-
-        if isinstance(code, str):
-            lineno = 0
-        else:
-            lineno = code.co_firstlineno
-
+        calls = entry.calls if entry.calls else []
+        lineno = 0 if isinstance(code, str) else code.co_firstlineno
         for subentry in calls:
             self._subentry(lineno, subentry)
         out_file.write("\n")
@@ -223,10 +215,7 @@ class Command(BaseCommand):
                     path_name = path_info.strip("/").replace('/', '.') or "root"
                     profname = "%s.%d.prof" % (path_name, time.time())
                     profname = os.path.join(prof_path, profname)
-                    if USE_CPROFILE:
-                        prof = cProfile.Profile()
-                    else:
-                        prof = hotshot.Profile(profname)
+                    prof = cProfile.Profile() if USE_CPROFILE else hotshot.Profile(profname)
                     start = datetime.now()
                     try:
                         return prof.runcall(inner_handler, environ, start_response)

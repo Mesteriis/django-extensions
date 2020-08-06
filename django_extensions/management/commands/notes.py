@@ -40,16 +40,17 @@ class Command(BaseCommand):
                 for fn in files:
                     if os.path.splitext(fn)[1] in ('.py', '.html'):
                         fpath = os.path.join(top, fn)
-                        annotation_lines = []
                         with open(fpath, 'r') as fd:
                             i = 0
+                            annotation_lines = []
                             for line in fd.readlines():
                                 i += 1
                                 if ANNOTATION_RE.search(line):
                                     tag, msg = ANNOTATION_RE.findall(line)[0]
-                                    if options['tag']:
-                                        if tag not in map(str.upper, map(str, options['tag'])):
-                                            break
+                                    if options['tag'] and tag not in map(
+                                        str.upper, map(str, options['tag'])
+                                    ):
+                                        break
 
                                     if ANNOTATION_END_RE.search(msg.strip()):
                                         msg = ANNOTATION_END_RE.findall(msg.strip())[0][0]

@@ -476,7 +476,7 @@ for k, m in shells.import_objects({}, no_style()).items():
                     options = {}
 
                 # dot not override a defined value
-                if opt_name in options.keys():
+                if opt_name in options:
                     app_name = dbs[db]['OPTIONS'][opt_name]
                 else:
                     dbs[db].setdefault('OPTIONS', {}).update({opt_name: default_app_name})

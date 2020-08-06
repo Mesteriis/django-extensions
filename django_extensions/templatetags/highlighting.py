@@ -57,10 +57,7 @@ class CodeNode(Node):
     def __init__(self, language, nodelist, name=''):
         self.language = Variable(language)
         self.nodelist = nodelist
-        if name:
-            self.name = Variable(name)
-        else:
-            self.name = None
+        self.name = Variable(name) if name else None
 
     def render(self, context):
         code = self.nodelist.render(context).strip()

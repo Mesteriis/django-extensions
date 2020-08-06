@@ -69,11 +69,7 @@ class JSONField(models.TextField):
         if value is None or value == '':
             return {}
 
-        if isinstance(value, str):
-            res = loads(value)
-        else:
-            res = value
-
+        res = loads(value) if isinstance(value, str) else value
         if isinstance(res, dict):
             return JSONDict(**res)
         elif isinstance(res, list):

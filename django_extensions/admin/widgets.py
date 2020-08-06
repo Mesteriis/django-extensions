@@ -65,11 +65,7 @@ class ForeignKeySearchInput(ForeignKeyRawIdWidget):
         # Call the TextInput render method directly to have more control
         output = [forms.TextInput.render(self, name, value, attrs)]
 
-        if value:
-            label = self.label_for_value(value)
-        else:
-            label = ''
-
+        label = self.label_for_value(value) if value else ''
         context = {
             'url': url,
             'related_url': related_url,

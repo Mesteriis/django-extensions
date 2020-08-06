@@ -40,10 +40,7 @@ class InternalIPS(Container):
         :return: ``True`` if IP address or subnet is a member of this InternalIPS set.
         """
         address = ipaddress.ip_address(address)
-        for cidr in self._cidrs:
-            if address in cidr:
-                return True
-        return False
+        return any(address in cidr for cidr in self._cidrs)
 
     def __hash__(self):
         """

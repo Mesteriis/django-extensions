@@ -14,8 +14,7 @@ def get_model_to_deduplicate():
         print("%s. %s" % (iterator, model.__name__))
         iterator += 1
     model_choice = int(input("Enter the number of the model you would like to de-duplicate:"))
-    model_to_deduplicate = models[model_choice - 1]
-    return model_to_deduplicate
+    return models[model_choice - 1]
 
 
 def get_field_names(model):
@@ -204,8 +203,7 @@ class Command(BaseCommand):
                         related_object.delete()
 
             for field in generic_fields:
-                filter_kwargs = {}
-                filter_kwargs[field.fk_field] = alias_object._get_pk_val()
+                filter_kwargs = {field.fk_field: alias_object._get_pk_val()}
                 filter_kwargs[field.ct_field] = field.get_content_type(alias_object)
                 related_objects = field.model.objects.filter(**filter_kwargs)
                 for generic_related_object in related_objects:

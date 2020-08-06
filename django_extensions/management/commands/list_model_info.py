@@ -118,10 +118,7 @@ class Command(BaseCommand):
                     method = getattr(model, method_name)
                     if ALL_METHODS:
                         if callable(method) and not method_name[0].isupper():
-                            if SIGNATURE:
-                                signature = inspect.signature(method)
-                            else:
-                                signature = "()"
+                            signature = inspect.signature(method) if SIGNATURE else "()"
                             self.stdout.write(TAB + method_name + str(signature))
                     else:
                         if (
@@ -130,10 +127,7 @@ class Command(BaseCommand):
                             and method_name not in default_methods
                             and not method_name[0].isupper()
                         ):
-                            if SIGNATURE:
-                                signature = inspect.signature(method)
-                            else:
-                                signature = "()"
+                            signature = inspect.signature(method) if SIGNATURE else "()"
                             self.stdout.write(TAB + method_name + str(signature))
                 except AttributeError:
                     self.stdout.write(TAB + method_name + WARN(" - AttributeError"))

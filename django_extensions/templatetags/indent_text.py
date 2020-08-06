@@ -8,10 +8,7 @@ class IndentByNode(template.Node):
     def __init__(self, nodelist, indent_level, if_statement):
         self.nodelist = nodelist
         self.indent_level = template.Variable(indent_level)
-        if if_statement:
-            self.if_statement = template.Variable(if_statement)
-        else:
-            self.if_statement = None
+        self.if_statement = template.Variable(if_statement) if if_statement else None
 
     def render(self, context):
         indent_level = self.indent_level.resolve(context)

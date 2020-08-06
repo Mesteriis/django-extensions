@@ -7,11 +7,11 @@ class IndentByTagExceptions(TestCase):
     """Test for indentby exceptions."""
 
     def test_should_raise_TemplateSyntaxError_if_args_lenght_not_in_2_4(self):
-        content = """{% load indent_text %}
+        with self.assertRaisesRegex(TemplateSyntaxError, "indentby tag requires 1 or 3 arguments"):
+            content = """{% load indent_text %}
 {% indentby %}
 Hello World
 {% endindentby %}"""
-        with self.assertRaisesRegex(TemplateSyntaxError, "indentby tag requires 1 or 3 arguments"):
             Template(content).render(Context())
 
 

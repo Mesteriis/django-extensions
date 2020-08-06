@@ -195,12 +195,7 @@ class Command(BaseCommand):
         for p in urlpatterns:
             if isinstance(p, (URLPattern, RegexURLPattern)):
                 try:
-                    if not p.name:
-                        name = p.name
-                    elif namespace:
-                        name = '{0}:{1}'.format(namespace, p.name)
-                    else:
-                        name = p.name
+                    name = '{0}:{1}'.format(namespace, p.name) if p.name and namespace else p.name
                     pattern = describe_pattern(p)
                     views.append((p.callback, base + pattern, name))
                 except ViewDoesNotExist:
